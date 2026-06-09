@@ -49,6 +49,18 @@ def logout():
     return jsonify({}), 200
 
 
+@admin_bp.before_request
+def restrict_to_admins():
+    if request.endpoint == "admin.login":
+        return None
+
+    if session.get("role") != "admin":
+        return (
+            jsonify({"message": "Access denied. Administrator privileges required."}),
+            403,
+        )
+
+
 @admin_bp.route("/rooms/all", methods=["GET"])
 def get_all_rooms():
     try:
