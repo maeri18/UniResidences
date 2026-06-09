@@ -52,6 +52,15 @@ def logout():
     return jsonify({}), 200
 
 
+@student_bp.before_request
+def restrict_to_student():
+    if request.endpoint == "student.login":
+        return None
+
+    if session.get("role") != "student":
+        return jsonify({"message": "Access denied. Student privileges required."}), 403
+
+
 @student_bp.route("/rooms/available", methods=["GET"])
 def get_all_free_rooms():
     """This route is to receive requests for getting which rooms are currently available.
