@@ -1,9 +1,10 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from models.Room import Room
 from models.Application import Application, ApplicationStatus
 from models import db
 from models.Student import Student
 from helper_functions import start_logging
+import hashlib
 
 import datetime
 
@@ -11,6 +12,42 @@ logger = start_logging("student_routes_", __name__)
 
 
 student_bp = Blueprint("student", __name__)
+
+
+@student_bp.route("/login", methods=["POST"])
+def login():
+    try:
+        data = request.get_json()
+        if data is None:
+            return jsonify({"message": "Missing credentials!"}), 403
+
+        student_id = data.get("student_id", type=int)
+        try_student_password = data.get("student_password")
+
+        if student_id is None or try_student_password is None:
+            return jsonify({"message": "Invalid credentials"}), 403
+
+        if student_id is not None and try_student_password is not None:
+            student = db.session.get(Student, student_id)
+            student_password_hash = student.password_hash
+
+            if student is not None:
+                try_password_hash = hashlib.shake_256(
+                    try_student_password.encode("utf-8")
+                ).hexdigest(50)
+                if try_password_hash == student_password_hash:
+                    session["student_id"] = student_id
+                    session["role"] = "student"
+                    return jsonify({}), 200
+    except Exception as e:
+        logger.error(f"An error occured {e}")
+        return jsonify({"message": f"An error occured  {e}"}), 400
+
+
+@student_bp.route("/logout", methods=["GET"])
+def logout():
+    session.clear()
+    return jsonify({}), 200
 
 
 @student_bp.route("/rooms/available", methods=["GET"])
