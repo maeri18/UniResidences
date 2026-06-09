@@ -49,6 +49,18 @@ def logout():
     return jsonify({}), 200
 
 
+@admin_bp.before_request
+def restrict_to_admins():
+    if request.endpoint == "admin.login":
+        return None
+
+    if session.get("role") != "admin":
+        return (
+            jsonify({"message": "Access denied. Administrator privileges required."}),
+            403,
+        )
+
+
 @admin_bp.route("/rooms/all", methods=["GET"])
 def get_all_rooms():
     try:
@@ -129,6 +141,8 @@ def accept_student_application():
                 ):
                     application.status = ApplicationStatus.ACCEPTED
                     application.admin_Id = admin_id
+                    linkedRoom = application.linksTo
+                    linkedRoom.available = False
                     db.session.commit()
                     return jsonify({}), 200
 
@@ -169,6 +183,7 @@ def reject_student_application():
                 ):
                     application.status = ApplicationStatus.REJECTED
                     application.reason_for_refusal = reason_for_refusal
+                    application.admin_Id = admin_id
                     db.session.commit()
                     return jsonify({}), 200
             return jsonify({"message": "Invalid identifier provided"}), 422
