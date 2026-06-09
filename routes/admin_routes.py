@@ -1,9 +1,10 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from models.Room import Room
 from models.Application import Application, ApplicationStatus
 from models import db
 from models.Admin import Admin
 from helper_functions import start_logging, parse_bool_arg
+import hashlib
 
 logger = start_logging("admin_routes_", __name__)
 
@@ -11,8 +12,42 @@ logger = start_logging("admin_routes_", __name__)
 admin_bp = Blueprint("admin", __name__)
 
 
-@admin_bp.route("/login", methods=["GET"])
-@admin_bp.route("/logout", methods=["GET"])
+@admin_bp.route("/login", methods=["POST"])
+def login():
+    try:
+        data = request.get_json()
+        if data is None:
+            return jsonify({"message": "Missing credentials!"}), 403
+
+        admin_id = data.get("admin_id", type=int)
+        try_admin_password = data.get("admin_password")
+
+        if admin_id is None or try_admin_password is None:
+            return jsonify({"message": "Missing credentials"}), 403
+
+        if admin_id is not None and try_admin_password is not None:
+            admin = db.session.get(Admin, admin_id)
+            admin_password_hash = admin.password_hash
+
+            if admin is not None:
+                try_password_hash = hashlib.shake_256(
+                    try_admin_password.encode("utf-8")
+                ).hexdigest(50)
+                if try_password_hash == admin_password_hash:
+                    session["admin_id"] = admin_id
+                    session["role"] = "admin"
+                    return jsonify({}), 200
+    except Exception as e:
+        logger.error(f"An error occured {e}")
+        return jsonify({"message": f"An error occured  {e}"}), 400
+
+
+@admin_bp.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    return jsonify({}), 200
+
+
 @admin_bp.route("/rooms/all", methods=["GET"])
 def get_all_rooms():
     try:
