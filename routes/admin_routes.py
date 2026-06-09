@@ -129,6 +129,8 @@ def accept_student_application():
                 ):
                     application.status = ApplicationStatus.ACCEPTED
                     application.admin_Id = admin_id
+                    linkedRoom = application.linksTo
+                    linkedRoom.available = False
                     db.session.commit()
                     return jsonify({}), 200
 
@@ -169,6 +171,7 @@ def reject_student_application():
                 ):
                     application.status = ApplicationStatus.REJECTED
                     application.reason_for_refusal = reason_for_refusal
+                    application.admin_Id = admin_id
                     db.session.commit()
                     return jsonify({}), 200
             return jsonify({"message": "Invalid identifier provided"}), 422
