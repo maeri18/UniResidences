@@ -29,12 +29,9 @@ def login():
 
         if student_id is not None and try_student_password is not None:
             student = db.session.get(Student, student_id)
-            if student is not None:
-                student_password_hash = student.password_hash
-            else:
-                return jsonify({"message": "Invalid credentials"}), 403
 
             if student is not None:
+                student_password_hash = student.password_hash
                 try_password_hash = hashlib.shake_256(
                     try_student_password.encode("utf-8")
                 ).hexdigest(50)
@@ -42,6 +39,8 @@ def login():
                     session["student_id"] = student_id
                     session["role"] = "student"
                     return jsonify({}), 200
+        return jsonify({"message": "Invalid credentials"}), 403
+
     except Exception as e:
         logger.error(f"An error occured {e}")
         return jsonify({"message": f"An error occured  {e}"}), 400
