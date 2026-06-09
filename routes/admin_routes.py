@@ -19,7 +19,7 @@ def login():
         if data is None:
             return jsonify({"message": "Missing credentials!"}), 403
 
-        admin_id = data.get("admin_id", type=int)
+        admin_id = int(data.get("admin_id"))
         try_admin_password = data.get("admin_password")
 
         if admin_id is None or try_admin_password is None:
@@ -27,9 +27,9 @@ def login():
 
         if admin_id is not None and try_admin_password is not None:
             admin = db.session.get(Admin, admin_id)
-            admin_password_hash = admin.password_hash
 
             if admin is not None:
+                admin_password_hash = admin.password_hash
                 try_password_hash = hashlib.shake_256(
                     try_admin_password.encode("utf-8")
                 ).hexdigest(50)
@@ -37,6 +37,7 @@ def login():
                     session["admin_id"] = admin_id
                     session["role"] = "admin"
                     return jsonify({}), 200
+        return jsonify({"message": "Missing credentials"}), 403
     except Exception as e:
         logger.error(f"An error occured {e}")
         return jsonify({"message": f"An error occured  {e}"}), 400
