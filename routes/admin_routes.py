@@ -2,10 +2,145 @@ from flask import Blueprint, jsonify, request
 from models.Room import Room
 from models.Application import Application, ApplicationStatus
 from models import db
-from models.Student import Student
 from models.Admin import Admin
+from helper_functions import start_logging, parse_bool_arg
 
-import logging
-import datetime
+logger = start_logging("admin_routes_", __name__)
+
 
 admin_bp = Blueprint("admin", __name__)
+
+
+@admin_bp.route("/login", methods=["GET"])
+@admin_bp.route("/logout", methods=["GET"])
+@admin_bp.route("/rooms/all", methods=["GET"])
+def get_all_rooms():
+    try:
+        availability = parse_bool_arg(request.args.get("availability"))
+        min_budget = request.args.get("min_budget", type=int)
+        max_budget = request.args.get("max_budget", type=int)
+
+        rooms = None
+        if availability is not None:
+            query = Room.query.filter(Room.available == availability)
+        else:
+            query = Room.query
+
+        if min_budget is not None:
+            query = query.filter(Room.rent >= min_budget)
+
+        if max_budget is not None:
+            query = query.filter(Room.rent <= max_budget)
+
+        rooms = query.all()
+
+        return jsonify([r.room_Id for r in rooms]), 200
+
+    except Exception as e:
+        logger.error(f"An error occured {e}")
+        return jsonify({"message": f"An error occured  {e}"}), 400
+
+
+@admin_bp.route("/applications/details", methods=["GET"])
+def check_application_details():
+    try:
+        application_id = request.args.get("application_id", type=int)
+        if application_id is not None:
+            application = db.session.get(Application, application_id)
+            if application is not None:
+                details = application.to_dict()
+                details["submission_date"]
+                return jsonify(details), 200
+
+        return jsonify({"message": "Non-existing application"}), 422
+
+    except Exception as e:
+        logger.error(f"An error occured {e}")
+        return jsonify({"message": f"An error occured  {e}"}), 400
+
+
+@admin_bp.route("/applications/pending", methods=["GET"])
+def check_pending_application():
+    try:
+        pending_applications = (
+            Application.query.filter(Application.status == ApplicationStatus.PENDING)
+            .order_by(Application.submission_date.desc())
+            .all()
+        )
+        pending_applications_id = [app.application_Id for app in pending_applications]
+
+        return jsonify(pending_applications_id), 200
+    except Exception as e:
+        logger.error(f"An error occured {e}")
+        return jsonify({"message": f"An error occured  {e}"}), 400
+
+
+@admin_bp.route("/applications/accept", methods=["PUT"])
+def accept_student_application():
+    try:
+        application_id = request.args.get("application_id", type=int)
+        admin_id = request.args.get("admin_id", type=int)
+        if admin_id is not None:
+            admin = db.session.get(Admin, admin_id)
+            if admin is None:
+                return jsonify({"message": "Can't perform the action"}), 403
+
+            if application_id is not None:
+                application = db.session.get(Application, application_id)
+                if (
+                    application is not None
+                    and application.status == ApplicationStatus.PENDING
+                ):
+                    application.status = ApplicationStatus.ACCEPTED
+                    application.admin_Id = admin_id
+                    db.session.commit()
+                    return jsonify({}), 200
+
+            return jsonify({"message": "Invalid identifier provided"}), 422
+        else:
+            return jsonify({"message": "Can't perform the action"}), 403
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"An error occured {e}")
+        return jsonify({"message": f"An error occured  {e}"}), 400
+
+
+@admin_bp.route("/applications/reject", methods=["PUT"])
+def reject_student_application():
+    try:
+        application_id = request.args.get("application_id", type=int)
+        request_data = request.get_json()
+        reason_for_refusal = None
+        admin_id = request.args.get("admin_id", type=int)
+
+        if admin_id is not None:
+            admin = db.session.get(Admin, admin_id)
+            if admin is None:
+                return jsonify({"message": "Can't perform the action"}), 403
+
+            if request_data is not None:
+                reason_for_refusal = request_data.get("reason_for_refusal")
+
+            if reason_for_refusal is None:
+                return jsonify({"message": "Missing reason for refusal"}), 422
+
+            if application_id is not None and reason_for_refusal is not None:
+                application = db.session.get(Application, application_id)
+                if (
+                    application is not None
+                    and application.status == ApplicationStatus.PENDING
+                ):
+                    application.status = ApplicationStatus.REJECTED
+                    application.reason_for_refusal = reason_for_refusal
+                    db.session.commit()
+                    return jsonify({}), 200
+            return jsonify({"message": "Invalid identifier provided"}), 422
+
+        else:
+            return jsonify({"message": "Can't perform the action"}), 403
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"An error occured {e}")
+        return jsonify({"message": f"An error occured  {e}"}), 400
