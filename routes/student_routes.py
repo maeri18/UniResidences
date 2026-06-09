@@ -3,21 +3,11 @@ from models.Room import Room
 from models.Application import Application, ApplicationStatus
 from models import db
 from models.Student import Student
+from helper_functions import start_logging
 
-import logging
 import datetime
 
-logger = logging.getLogger(__name__)
-
-
-def date_to_formatted_str(date) -> str:
-    return datetime.datetime.strftime(date, "%a_%d_%b_%Y-%H_%M_%S")
-
-
-def start_logging():
-    date = date_to_formatted_str(datetime.datetime.now())
-    filename = "student_routes_" + date + ".log"
-    logging.basicConfig(filename=filename, encoding="utf-8", level=logging.DEBUG)
+logger = start_logging("student_routes_", __name__)
 
 
 student_bp = Blueprint("student", __name__)
@@ -45,7 +35,7 @@ def get_all_free_rooms():
         rooms = query.all()
         return jsonify([r.room_Id for r in rooms]), 200
     except Exception as e:
-        logging.error(f"An error occured {e}")
+        logger.error(f"An error occured {e}")
         return jsonify({"message": f"An error occured  {e}"}), 400
 
 
@@ -61,7 +51,7 @@ def check_free_room_description():
 
         return jsonify({"message": "Invalid room identifier"}), 422
     except Exception as e:
-        logging.error(f"An error occured {e}")
+        logger.error(f"An error occured {e}")
         return jsonify({"message": f"An error occured  {e}"}), 400
 
 
@@ -99,7 +89,7 @@ def apply_for_a_room():
                 new_application = Application(
                     status=ApplicationStatus.PENDING,
                     application_message=application_message,
-                    submission_date=date_to_formatted_str(datetime.datetime.now()),
+                    submission_date=datetime.datetime.now(),
                     student_Id=student_id,
                     room_Id=room_id,
                 )
@@ -132,7 +122,7 @@ def apply_for_a_room():
             )
     except Exception as e:
         db.session.rollback()
-        logging.error(f"An error occured {e}")
+        logger.error(f"An error occured {e}")
         return jsonify({"message": f"An error occured  {e}"}), 400
 
 
@@ -149,17 +139,21 @@ def get_all_applications():
             else:
                 return jsonify({"message": "Unexisting student"}), 422
 
-            idsAndDate = sorted(
-                [
-                    (
-                        date_to_formatted_str(app.to_dict()["submission_date"]),
-                        app.to_dict()["application_Id"],
-                    )
-                    for app in student_applications
-                ]
-            )
+            ids = [
+                application_id
+                for _, application_id in sorted(
+                    [
+                        (
+                            app.submission_date,
+                            app.application_Id,
+                        )
+                        for app in student_applications
+                    ]
+                )
+            ]
+            ids.reverse()
 
-            return jsonify({"applications": idsAndDate}), 200
+            return jsonify({"applications": ids}), 200
         else:
             return (
                 jsonify(
@@ -171,7 +165,7 @@ def get_all_applications():
             )
 
     except Exception as e:
-        logging.error(f"An error occured {e}")
+        logger.error(f"An error occured {e}")
         return jsonify({"message": f"An error occured  {e}"}), 400
 
 
@@ -205,5 +199,5 @@ def check_application_status():
             )
 
     except Exception as e:
-        logging.error(f"An error occured {e}")
+        logger.error(f"An error occured {e}")
         return jsonify({"message": f"An error occured  {e}"}), 400
