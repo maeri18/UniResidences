@@ -15,7 +15,8 @@ class Application(db.Model):
     application_Id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Enum(ApplicationStatus), nullable=False)
     reason_for_refusal = db.Column(db.String(300), nullable=True)
-    submission_date = db.Column(db.DateTime, nullable=False)
+    application_message = db.Column(db.String(500), nullable=False)
+    submission_date = db.Column(db.String(20), nullable=False)
 
     student_Id: Mapped[int] = db.Column(
         db.Integer, db.ForeignKey("students.student_Id"), nullable=False
@@ -33,30 +34,20 @@ class Application(db.Model):
     handledBy: Mapped["Admin"] = db.relationship(back_populates="handled")
 
     def to_dict(self):
-        if self.status == ApplicationStatus.PENDING:
-            return {
-                "application_Id": self.application_Id,
-                "status": self.status,
-                "submission_date": self.submission_date,
-                "student_name": self.wasSubmittedBy.student_name,
-                "room_id": self.room_Id,
-            }
+        result_dict = {
+            "application_Id": self.application_Id,
+            "status": self.status,
+            "submission_date": self.submission_date,
+            "student_name": self.wasSubmittedBy.student_name,
+            "room_id": self.room_Id,
+            "application_message": self.application_message,
+        }
+
         if self.status == ApplicationStatus.ACCEPTED:
-            return {
-                "application_Id": self.application_Id,
-                "status": self.status,
-                "submission_date": self.submission_date,
-                "student_name": self.wasSubmittedBy.student_name,
-                "room_id": self.room_Id,
-                "handled_by": self.admin_Id,
-            }
-        if self.status == ApplicationStatus.REJECTED:
-            return {
-                "application_Id": self.application_Id,
-                "status": self.status,
-                "submission_date": self.submission_date,
-                "student_name": self.wasSubmittedBy.student_name,
-                "room_id": self.room_Id,
-                "handled_by": self.admin_Id,
-                "reason_for_refusal": self.reason_for_refusal,
-            }
+            result_dict["handled_by"] = self.admin_Id
+
+        elif self.status == ApplicationStatus.REJECTED:
+            result_dict["handled_by"] = self.admin_Id
+            result_dict["reason_for_refusal"] = self.reason_for_refusal
+
+        return result_dict
