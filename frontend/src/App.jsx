@@ -198,9 +198,10 @@ function BrowseRooms() {
           {rooms.map(id => (
             <div key={id} style={s.card}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontWeight: 600 }}>Room #{id}</span>
+                <span style={{ fontWeight: 600 }}>Room {id}</span>
                 <span style={s.badge("green")}>Available</span>
               </div>
+              <p>ID for application : <strong>{id}</strong></p>
               {detail[id]
                 ? <p style={{ fontSize: 13, color: C.textMuted, margin: 0 }}>{detail[id]}</p>
                 : <button style={{ ...s.btn("ghost"), fontSize: 12, padding: "5px 10px" }} onClick={() => fetchDetail(id)}>View description</button>}
@@ -259,7 +260,7 @@ function MyApplications({ studentId }) {
       const res = await fetch(`${API}/student/applications/all?student_id=${studentId}`, { credentials: "include" });
       const data = await res.json();
       if (!res.ok) return setError(data.message);
-      setApps(data.applications || []);
+      setApps(data.applicationDetails || []);
     } catch { setError("Network error."); } finally { setLoading(false); }
   };
 
@@ -271,12 +272,29 @@ function MyApplications({ studentId }) {
       <button style={{ ...s.btn("primary"), marginBottom: 16 }} onClick={load}>Load Applications</button>
       {loading && <div style={{ textAlign: "center", padding: 32 }}><span style={{ ...s.spinner, borderTopColor: C.primary, borderColor: C.border }} /></div>}
       {!loading && fetched && apps.length === 0 && !error && <div style={s.empty}>No applications found.</div>}
-      {!loading && apps.map(id => (
-        <div key={id} style={{ ...s.card, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontWeight: 500 }}>Application #{id}</span>
-          <span style={{ fontSize: 12, color: C.textLight }}>ID: {id}</span>
-        </div>
-      ))}
+      {!loading && apps.map(([submission_date, id, room_description]) => (
+  <div 
+    key={id} 
+    style={{ 
+      ...s.card, 
+      display: "flex", 
+      flexDirection: "column", // Changed to column so details stack nicely
+      gap: "4px",
+      marginBottom: "12px" 
+    }}
+  >
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <span style={{ fontWeight: 600 }}>Application #{id}</span>
+      
+    </div>
+    
+    <div style={{ fontSize: 14, color: C.textDim, marginTop: 4 }}>
+      <p style={{ margin: 0}}> <strong>Id:</strong> {id}</p>
+      <p style={{ margin: 0 }}><strong>Room description:</strong> {room_description}</p>
+      <p style={{ margin: 0 }}><strong>Submission date:</strong> {submission_date}</p>
+    </div>
+  </div>
+))}
     </div>
   );
 }
