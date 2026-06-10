@@ -21,13 +21,14 @@ def login():
         if data is None:
             return jsonify({"message": "Missing credentials!"}), 403
 
-        student_id = int(data.get("student_id"))
+        student_id_str = data.get("student_id")
         try_student_password = data.get("student_password")
 
-        if student_id is None or try_student_password is None:
+        if student_id_str is None or try_student_password is None:
             return jsonify({"message": "Invalid credentials"}), 403
 
-        if student_id is not None and try_student_password is not None:
+        if student_id_str is not None and try_student_password is not None:
+            student_id = int(student_id_str)
             student = db.session.get(Student, student_id)
 
             if student is not None:
@@ -106,6 +107,7 @@ def check_free_room_description():
 @student_bp.route("/rooms/apply", methods=["POST"])
 def apply_for_a_room():
     try:
+        print("Received and application request")
 
         room_id = request.args.get("room_id", type=int)
         student_id = request.args.get("student_id", type=int)
@@ -120,6 +122,7 @@ def apply_for_a_room():
             and student_id is not None
             and application_message is not None
         ):
+            print(room_id, " ", student_id, " ", application_message)
             room = db.session.get(Room, room_id)
 
             if room is None:

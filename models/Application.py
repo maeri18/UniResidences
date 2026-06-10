@@ -1,6 +1,7 @@
 from models import db
 import enum
 from sqlalchemy.orm import Mapped
+from helper_functions import date_to_formatted_str
 
 
 class ApplicationStatus(enum.Enum):
@@ -16,7 +17,7 @@ class Application(db.Model):
     status = db.Column(db.Enum(ApplicationStatus), nullable=False)
     reason_for_refusal = db.Column(db.String(300), nullable=True)
     application_message = db.Column(db.String(500), nullable=False)
-    submission_date = db.Column(db.String(20), nullable=False)
+    submission_date = db.Column(db.DateTime, nullable=False)
 
     student_Id: Mapped[int] = db.Column(
         db.Integer, db.ForeignKey("students.student_Id"), nullable=False
@@ -36,8 +37,8 @@ class Application(db.Model):
     def to_dict(self):
         result_dict = {
             "application_Id": self.application_Id,
-            "status": self.status,
-            "submission_date": self.submission_date,
+            "status": self.status.value,
+            "submission_date": date_to_formatted_str(self.submission_date),
             "student_name": self.wasSubmittedBy.student_name,
             "room_id": self.room_Id,
             "application_message": self.application_message,

@@ -1,9 +1,10 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from models.Room import Room
 from models.Application import Application, ApplicationStatus
 from models import db
 from models.Admin import Admin
 from helper_functions import start_logging, parse_bool_arg
+import hashlib
 
 logger = start_logging("admin_routes_", __name__)
 
@@ -11,8 +12,56 @@ logger = start_logging("admin_routes_", __name__)
 admin_bp = Blueprint("admin", __name__)
 
 
-@admin_bp.route("/login", methods=["GET"])
-@admin_bp.route("/logout", methods=["GET"])
+@admin_bp.route("/login", methods=["POST"])
+def login():
+    try:
+        data = request.get_json()
+        if data is None:
+            return jsonify({"message": "Missing credentials!"}), 403
+
+        admin_id_str = data.get("admin_id")
+        try_admin_password = data.get("admin_password")
+
+        if admin_id_str is None or try_admin_password is None:
+            return jsonify({"message": "Missing credentials"}), 403
+
+        if admin_id_str is not None and try_admin_password is not None:
+            admin_id = int(admin_id_str)
+            admin = db.session.get(Admin, admin_id)
+
+            if admin is not None:
+                admin_password_hash = admin.password_hash
+                try_password_hash = hashlib.shake_256(
+                    try_admin_password.encode("utf-8")
+                ).hexdigest(50)
+                if try_password_hash == admin_password_hash:
+                    session["admin_id"] = admin_id
+                    session["role"] = "admin"
+                    return jsonify({}), 200
+        return jsonify({"message": "Missing credentials"}), 403
+    except Exception as e:
+        logger.error(f"An error occured {e}")
+        return jsonify({"message": f"An error occured  {e}"}), 400
+
+
+@admin_bp.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    return jsonify({}), 200
+
+
+@admin_bp.before_request
+def restrict_to_admins():
+    if request.endpoint == "admin.login":
+        return None
+
+    if session.get("role") != "admin":
+        return (
+            jsonify({"message": "Access denied. Administrator privileges required."}),
+            403,
+        )
+
+
 @admin_bp.route("/rooms/all", methods=["GET"])
 def get_all_rooms():
     try:
@@ -93,6 +142,8 @@ def accept_student_application():
                 ):
                     application.status = ApplicationStatus.ACCEPTED
                     application.admin_Id = admin_id
+                    linkedRoom = application.linksTo
+                    linkedRoom.available = False
                     db.session.commit()
                     return jsonify({}), 200
 
@@ -133,6 +184,7 @@ def reject_student_application():
                 ):
                     application.status = ApplicationStatus.REJECTED
                     application.reason_for_refusal = reason_for_refusal
+                    application.admin_Id = admin_id
                     db.session.commit()
                     return jsonify({}), 200
             return jsonify({"message": "Invalid identifier provided"}), 422
