@@ -14,7 +14,7 @@ from models.Room import Room
 from models.Admin import Admin
 
 # import routes
-from routes.student_routes import student_bp
+from routes.student_routes import student_bp, start_logging
 from routes.admin_routes import admin_bp
 
 from dotenv import load_dotenv
@@ -22,11 +22,14 @@ import os
 
 load_dotenv()
 
+start_logging()
+
 
 app = Flask(__name__)
 CORS(app)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "default-key")
 
 db.init_app(app)
 
@@ -109,4 +112,4 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

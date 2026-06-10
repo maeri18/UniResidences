@@ -21,13 +21,14 @@ def login():
         if data is None:
             return jsonify({"message": "Missing credentials!"}), 403
 
-        student_id = int(data.get("student_id"))
+        student_id_str = data.get("student_id")
         try_student_password = data.get("student_password")
 
-        if student_id is None or try_student_password is None:
+        if student_id_str is None or try_student_password is None:
             return jsonify({"message": "Invalid credentials"}), 403
 
-        if student_id is not None and try_student_password is not None:
+        if student_id_str is not None and try_student_password is not None:
+            student_id = int(student_id_str)
             student = db.session.get(Student, student_id)
 
             if student is not None:
