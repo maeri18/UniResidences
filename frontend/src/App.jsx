@@ -272,7 +272,7 @@ function MyApplications({ studentId }) {
       <button style={{ ...s.btn("primary"), marginBottom: 16 }} onClick={load}>Load Applications</button>
       {loading && <div style={{ textAlign: "center", padding: 32 }}><span style={{ ...s.spinner, borderTopColor: C.primary, borderColor: C.border }} /></div>}
       {!loading && fetched && apps.length === 0 && !error && <div style={s.empty}>No applications found.</div>}
-      {!loading && apps.map(([submission_date, id, room_description]) => (
+      {!loading && apps.map(([submission_date, id, room_description, roomId]) => (
   <div 
     key={id} 
     style={{ 
@@ -289,7 +289,8 @@ function MyApplications({ studentId }) {
     </div>
     
     <div style={{ fontSize: 14, color: C.textDim, marginTop: 4 }}>
-      <p style={{ margin: 0}}> <strong>Id:</strong> {id}</p>
+      <p style={{ margin: 0}}> <strong>/Application Id:</strong> {id}</p>
+      <p style={{ margin: 0}}> <strong>Room Id:</strong> {roomId}</p>
       <p style={{ margin: 0 }}><strong>Room description:</strong> {room_description}</p>
       <p style={{ margin: 0 }}><strong>Submission date:</strong> {submission_date}</p>
     </div>
