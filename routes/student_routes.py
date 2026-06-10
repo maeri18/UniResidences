@@ -49,7 +49,7 @@ def login():
         return jsonify({"message": f"An error occured  {e}"}), 400
 
 
-@student_bp.route("/logout", methods=["GET"])
+@student_bp.route("/logout", methods=["POST"])
 def logout():
     session.clear()
     return jsonify({}), 200
