@@ -9,9 +9,9 @@ import hashlib
 from models import db
 
 # import all models
-from models.Student import Student
-from models.Room import Room
-from models.Admin import Admin
+from models.Student import Student, generate_random_student_id
+from models.Room import Room, generate_random_room_id
+from models.Admin import Admin, generate_random_admin_id
 
 # import routes
 from routes.student_routes import student_bp
@@ -62,7 +62,12 @@ def initDatabase():
 
     for i in range(10):
         rent = random.randint(350, 750)
+        room_id = generate_random_room_id()
+        while db.session.get(Room, room_id) is not None:
+            room_id = generate_random_room_id()
+
         room = Room(
+            room_Id=room_id,
             available=True,
             rent=rent,
             description=roomDescriptions[random.randint(1, 5)]
@@ -84,12 +89,16 @@ def initDatabase():
             )
         )
 
+        student_id = generate_random_student_id()
+        while db.session.get(Student, student_id) is not None:
+            student_id = generate_random_student_id()
+
         if print_one:
-            password="cici"
-            print("A student is: ", student_name, "and password: ", password)
+            print("A student is: ", student_name, "and id :", student_id, "and password: ", password)
             print_one = False
         
         student = Student(
+            student_Id=student_id,
             student_name=student_name,
             password_hash=hashlib.shake_256(password.encode("utf-8")).hexdigest(50),
         )
@@ -105,11 +114,16 @@ def initDatabase():
             )
         )
 
+        admin_id = generate_random_admin_id()
+        while db.session.get(Admin, admin_id) is not None:
+            admin_id = generate_random_admin_id()
+
         if print_one:
-            password = "cece"
-            print("An admin password: ", password)
+            print("An admin id: ",admin_id,"and password: ", password)
             print_one = False
+
         admin = Admin(
+            admin_Id=admin_id,
             password_hash=hashlib.shake_256(password.encode("utf-8")).hexdigest(50),
         )
 

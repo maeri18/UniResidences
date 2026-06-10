@@ -2,12 +2,15 @@ from models import db
 import enum
 from sqlalchemy.orm import Mapped
 from typing import List
+import random
 
+def generate_random_room_id():
+    return random.randint(100,10000)
 
 class Room(db.Model):
     __tablename__ = "rooms"
 
-    room_Id = db.Column(db.Integer, primary_key=True)
+    room_Id = db.Column(db.Integer, primary_key=True,autoincrement=False, default=generate_random_room_id)
     available = db.Column(db.Boolean, nullable=False)
     rent = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(300), nullable=False)
