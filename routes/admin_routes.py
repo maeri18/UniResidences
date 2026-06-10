@@ -55,6 +55,10 @@ def logout():
 
 @admin_bp.before_request
 def restrict_to_admins():
+
+    if request.method == "OPTIONS":
+        return None 
+     
     if request.endpoint == "admin.login":
         return None
     
