@@ -19,13 +19,14 @@ def login():
         if data is None:
             return jsonify({"message": "Missing credentials!"}), 403
 
-        admin_id = int(data.get("admin_id"))
+        admin_id_str = data.get("admin_id")
         try_admin_password = data.get("admin_password")
 
-        if admin_id is None or try_admin_password is None:
+        if admin_id_str is None or try_admin_password is None:
             return jsonify({"message": "Missing credentials"}), 403
 
-        if admin_id is not None and try_admin_password is not None:
+        if admin_id_str is not None and try_admin_password is not None:
+            admin_id = int(admin_id_str)
             admin = db.session.get(Admin, admin_id)
 
             if admin is not None:
