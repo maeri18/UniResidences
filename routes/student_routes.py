@@ -57,6 +57,10 @@ def logout():
 
 @student_bp.before_request
 def restrict_to_student():
+
+    if request.method == "OPTIONS":
+        return None 
+    
     if request.endpoint == "student.login":
         return None
     
@@ -195,21 +199,22 @@ def get_all_applications():
             else:
                 return jsonify({"message": "Unexisting student"}), 422
 
-            ids = [
-                application_id
-                for _, application_id in sorted(
+            details = [
+                application_details
+                for application_details in sorted(
                     [
                         (
                             app.submission_date,
                             app.application_Id,
+                            app.linksTo.description
                         )
                         for app in student_applications
                     ]
                 )
             ]
-            ids.reverse()
+            details.reverse()
 
-            return jsonify({"applications": ids}), 200
+            return jsonify({"applicationDetails": details, }), 200
         else:
             return (
                 jsonify(
