@@ -45,37 +45,37 @@ const Spinner = () => <><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}
 
 // ─── LOGIN PAGE ───────────────────────────────────────────────────
 function LoginPage({ onLogin }) {
-  const [mode, setMode] = useState(null); // "student" | "admin"
+  const [mode, setMode] = useState(null);
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-  if (!id || !password) return setError("Both fields are required.");
-  setLoading(true); setError(null);
-  try {
-    const body = mode === "student"
-      ? { student_id: parseInt(id), student_password: password }
-      : { admin_id: parseInt(id), admin_password: password };
+    if (!id || !password) return setError("Both fields are required.");
+    setLoading(true); setError(null);
+    try {
+      const body = mode === "student"
+        ? { student_id: parseInt(id), student_password: password }
+        : { admin_id: parseInt(id), admin_password: password };
 
-    const res = await fetch(`${API}/login`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+      const res = await fetch(`${API}/${mode}/login`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
 
-    if (res.ok) {
-      onLogin(mode, parseInt(id));
-    } else {
-      const data = await res.json();
-      setError(data.message || "Invalid credentials.");
-    }
-  } catch { setError("Network error."); }
-  finally { setLoading(false); }
-};
-  
+      if (res.ok) {
+        onLogin(mode, parseInt(id));
+      } else {
+        const data = await res.json();
+        setError(data.message || "Invalid credentials.");
+      }
+    } catch { setError("Network error."); }
+    finally { setLoading(false); }
+  };
+
   if (!mode) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: C.bg }}>
@@ -84,12 +84,8 @@ function LoginPage({ onLogin }) {
           <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.5px", marginBottom: 8 }}>UniResidences</div>
           <p style={{ color: C.textMuted, fontSize: 15, marginBottom: 40 }}>University housing management system</p>
           <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
-            <button style={{ ...s.btn("primary"), padding: "14px 32px", fontSize: 15, borderRadius: 10 }} onClick={() => setMode("student")}>
-              Student Login
-            </button>
-            <button style={{ ...s.btn("admin"), padding: "14px 32px", fontSize: 15, borderRadius: 10 }} onClick={() => setMode("admin")}>
-              Admin Login
-            </button>
+            <button style={{ ...s.btn("primary"), padding: "14px 32px", fontSize: 15, borderRadius: 10 }} onClick={() => setMode("student")}>Student Login</button>
+            <button style={{ ...s.btn("admin"), padding: "14px 32px", fontSize: 15, borderRadius: 10 }} onClick={() => setMode("admin")}>Admin Login</button>
           </div>
         </div>
       </div>
@@ -135,7 +131,7 @@ function StudentApp({ studentId, onLogout }) {
   ];
 
   const handleLogout = async () => {
-    await fetch(`${API}/logout`, { method: "POST", credentials: "include" });
+    await fetch(`${API}/student/logout`, { method: "POST", credentials: "include" });
     onLogout();
   };
 
@@ -171,7 +167,7 @@ function BrowseRooms() {
     if (minBudget) params.append("min_budget", minBudget);
     if (maxBudget) params.append("max_budget", maxBudget);
     try {
-      const res = await fetch(`${API}/rooms/available?${params}`, { credentials: "include" });
+      const res = await fetch(`${API}/student/rooms/available?${params}`, { credentials: "include" });
       const ids = await res.json();
       setRooms(Array.isArray(ids) ? ids : []);
     } catch { setRooms([]); } finally { setLoading(false); }
@@ -180,7 +176,7 @@ function BrowseRooms() {
   const fetchDetail = async (id) => {
     if (detail[id]) return;
     try {
-      const res = await fetch(`${API}/rooms/description?room_id=${id}`, { credentials: "include" });
+      const res = await fetch(`${API}/student/rooms/description?room_id=${id}`, { credentials: "include" });
       const data = await res.json();
       setDetail(d => ({ ...d, [id]: data.description }));
     } catch {}
@@ -202,9 +198,10 @@ function BrowseRooms() {
           {rooms.map(id => (
             <div key={id} style={s.card}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontWeight: 600 }}>Room #{id}</span>
+                <span style={{ fontWeight: 600 }}>Room {id}</span>
                 <span style={s.badge("green")}>Available</span>
               </div>
+              <p>ID for application : <strong>{id}</strong></p>
               {detail[id]
                 ? <p style={{ fontSize: 13, color: C.textMuted, margin: 0 }}>{detail[id]}</p>
                 : <button style={{ ...s.btn("ghost"), fontSize: 12, padding: "5px 10px" }} onClick={() => fetchDetail(id)}>View description</button>}
@@ -227,7 +224,7 @@ function ApplyForRoom({ studentId }) {
     if (!message) return setFeedback({ type: "error", msg: "Application message is required." });
     setLoading(true); setFeedback(null);
     try {
-      const res = await fetch(`${API}/rooms/apply?room_id=${roomId}&student_id=${studentId}`, {
+      const res = await fetch(`${API}/student/rooms/apply?room_id=${roomId}&student_id=${studentId}`, {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ application_message: message }),
@@ -235,7 +232,7 @@ function ApplyForRoom({ studentId }) {
       const data = await res.json();
       setFeedback({ type: res.ok ? "success" : "error", msg: data.message });
       if (res.ok) { setRoomId(""); setMessage(""); }
-    } catch { setFeedback({ type: "error", msg: "network error" }); }
+    } catch (error) { setFeedback({ type: "error", msg: error.message }); }
     finally { setLoading(false); }
   };
 
@@ -260,10 +257,10 @@ function MyApplications({ studentId }) {
   const load = async () => {
     setLoading(true); setError(null); setFetched(true);
     try {
-      const res = await fetch(`${API}/applications/all?student_id=${studentId}`, { credentials: "include" });
+      const res = await fetch(`${API}/student/applications/all?student_id=${studentId}`, { credentials: "include" });
       const data = await res.json();
       if (!res.ok) return setError(data.message);
-      setApps(data.applications || []);
+      setApps(data.applicationDetails || []);
     } catch { setError("Network error."); } finally { setLoading(false); }
   };
 
@@ -275,12 +272,29 @@ function MyApplications({ studentId }) {
       <button style={{ ...s.btn("primary"), marginBottom: 16 }} onClick={load}>Load Applications</button>
       {loading && <div style={{ textAlign: "center", padding: 32 }}><span style={{ ...s.spinner, borderTopColor: C.primary, borderColor: C.border }} /></div>}
       {!loading && fetched && apps.length === 0 && !error && <div style={s.empty}>No applications found.</div>}
-      {!loading && apps.map(id => (
-        <div key={id} style={{ ...s.card, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontWeight: 500 }}>Application #{id}</span>
-          <span style={{ fontSize: 12, color: C.textLight }}>ID: {id}</span>
-        </div>
-      ))}
+      {!loading && apps.map(([submission_date, id, room_description]) => (
+  <div 
+    key={id} 
+    style={{ 
+      ...s.card, 
+      display: "flex", 
+      flexDirection: "column", // Changed to column so details stack nicely
+      gap: "4px",
+      marginBottom: "12px" 
+    }}
+  >
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <span style={{ fontWeight: 600 }}>Application #{id}</span>
+      
+    </div>
+    
+    <div style={{ fontSize: 14, color: C.textDim, marginTop: 4 }}>
+      <p style={{ margin: 0}}> <strong>Id:</strong> {id}</p>
+      <p style={{ margin: 0 }}><strong>Room description:</strong> {room_description}</p>
+      <p style={{ margin: 0 }}><strong>Submission date:</strong> {submission_date}</p>
+    </div>
+  </div>
+))}
     </div>
   );
 }
@@ -295,7 +309,7 @@ function CheckStatus({ studentId }) {
     if (!applicationId) return setError("Application ID is required.");
     setLoading(true); setError(null); setResult(null);
     try {
-      const res = await fetch(`${API}/application/status?student_id=${studentId}&application_id=${applicationId}`, { credentials: "include" });
+      const res = await fetch(`${API}/student/application/status?student_id=${studentId}&application_id=${applicationId}`, { credentials: "include" });
       const data = await res.json();
       if (!res.ok) return setError(data.message);
       setResult(data.status);
@@ -329,7 +343,7 @@ function AdminApp({ adminId, onLogout }) {
   ];
 
   const handleLogout = async () => {
-    await fetch(`${API}/logout`, { method: "POST", credentials: "include" });
+    await fetch(`${API}/admin/logout`, { method: "POST", credentials: "include" });
     onLogout();
   };
 
@@ -365,7 +379,7 @@ function AdminRooms() {
     if (minBudget) params.append("min_budget", minBudget);
     if (maxBudget) params.append("max_budget", maxBudget);
     try {
-      const res = await fetch(`${API}/rooms/all?${params}`, { credentials: "include" });
+      const res = await fetch(`${API}/admin/rooms/all?${params}`, { credentials: "include" });
       const ids = await res.json();
       setRooms(Array.isArray(ids) ? ids : []);
     } catch { setRooms([]); } finally { setLoading(false); }
@@ -403,7 +417,7 @@ function PendingApplications({ adminId }) {
   const load = async () => {
     setLoading(true); setFetched(true);
     try {
-      const res = await fetch(`${API}/applications/pending`, { credentials: "include" });
+      const res = await fetch(`${API}/admin/applications/pending`, { credentials: "include" });
       const ids = await res.json();
       setPending(Array.isArray(ids) ? ids : []);
     } catch {} finally { setLoading(false); }
@@ -411,7 +425,7 @@ function PendingApplications({ adminId }) {
 
   const accept = async (id) => {
     try {
-      const res = await fetch(`${API}/applications/accept?application_id=${id}&admin_id=${adminId}`, { method: "PUT", credentials: "include" });
+      const res = await fetch(`${API}/admin/applications/accept?application_id=${id}&admin_id=${adminId}`, { method: "PUT", credentials: "include" });
       const data = await res.json();
       setFeedback(f => ({ ...f, [id]: { type: res.ok ? "success" : "error", msg: res.ok ? "Accepted." : data.message } }));
       if (res.ok) setPending(p => p.filter(x => x !== id));
@@ -421,7 +435,7 @@ function PendingApplications({ adminId }) {
   const reject = async (id) => {
     if (!rejectMsg[id]) return setFeedback(f => ({ ...f, [id]: { type: "error", msg: "Reason is required." } }));
     try {
-      const res = await fetch(`${API}/applications/reject?application_id=${id}&admin_id=${adminId}`, {
+      const res = await fetch(`${API}/admin/applications/reject?application_id=${id}&admin_id=${adminId}`, {
         method: "PUT", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason_for_refusal: rejectMsg[id] }),
@@ -475,7 +489,7 @@ function ApplicationDetails() {
     if (!applicationId) return setError("Application ID is required.");
     setLoading(true); setError(null); setDetails(null);
     try {
-      const res = await fetch(`${API}/applications/details?application_id=${applicationId}`, { credentials: "include" });
+      const res = await fetch(`${API}/admin/applications/details?application_id=${applicationId}`, { credentials: "include" });
       const data = await res.json();
       if (!res.ok) return setError(data.message);
       setDetails(data);
@@ -519,7 +533,7 @@ function ApplicationDetails() {
 
 // ─── ROOT ─────────────────────────────────────────────────────────
 export default function App() {
-  const [auth, setAuth] = useState(null); // { role: "student"|"admin", id: number }
+  const [auth, setAuth] = useState(null);
 
   if (!auth) return <LoginPage onLogin={(role, id) => setAuth({ role, id })} />;
   if (auth.role === "student") return <StudentApp studentId={auth.id} onLogout={() => setAuth(null)} />;
