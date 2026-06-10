@@ -24,6 +24,8 @@ def login():
         student_id_str = data.get("student_id")
         try_student_password = data.get("student_password")
 
+        print("*******Tried to login with ",student_id_str," and ", try_student_password)
+
         if student_id_str is None or try_student_password is None:
             return jsonify({"message": "Invalid credentials"}), 403
 
@@ -57,9 +59,12 @@ def logout():
 def restrict_to_student():
     if request.endpoint == "student.login":
         return None
+    
+    print("Before request, the student role was: ", session.get("role"))
 
     if session.get("role") != "student":
         return jsonify({"message": "Access denied. Student privileges required."}), 403
+        
 
 
 @student_bp.route("/rooms/available", methods=["GET"])

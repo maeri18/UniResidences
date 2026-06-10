@@ -22,6 +22,8 @@ def login():
         admin_id_str = data.get("admin_id")
         try_admin_password = data.get("admin_password")
 
+        print("*******Tried to login with ",admin_id_str," and ", try_admin_password)
+
         if admin_id_str is None or try_admin_password is None:
             return jsonify({"message": "Missing credentials"}), 403
 
@@ -34,6 +36,7 @@ def login():
                 try_password_hash = hashlib.shake_256(
                     try_admin_password.encode("utf-8")
                 ).hexdigest(50)
+                
                 if try_password_hash == admin_password_hash:
                     session["admin_id"] = admin_id
                     session["role"] = "admin"
@@ -54,6 +57,8 @@ def logout():
 def restrict_to_admins():
     if request.endpoint == "admin.login":
         return None
+    
+    print("Before request, the student role was: ", session.get("role"))
 
     if session.get("role") != "admin":
         return (

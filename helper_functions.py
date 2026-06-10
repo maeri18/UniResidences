@@ -14,8 +14,8 @@ def start_logging(file_name_prefix: str, script_name: str):
 
     logger.setLevel(logging.DEBUG)
 
-    handler = logging.FileHandler(filename, encoding="utf-8")
-    logger.addHandler(handler)
+    #handler = logging.FileHandler(filename, encoding="utf-8")
+    #logger.addHandler(handler)
     return logger
 
 

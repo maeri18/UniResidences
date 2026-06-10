@@ -23,7 +23,7 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
+CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
 
 databaseUserName = os.environ.get("DATABASE_USERNAME")
 databasePassword = os.environ.get("DATABASE_PASSWORD")
@@ -61,12 +61,13 @@ def initDatabase():
     random.seed(10)
 
     for i in range(10):
+        rent = random.randint(350, 750)
         room = Room(
             available=True,
-            rent=random.randint(350, 750),
+            rent=rent,
             description=roomDescriptions[random.randint(1, 5)]
             + ". Located at : "
-            + location[random.randint(1, 9)],
+            + location[random.randint(1, 9)] + f"\nRent: {rent}",
         )
         db.session.add(room)
 
@@ -84,6 +85,7 @@ def initDatabase():
         )
 
         if print_one:
+            password="cici"
             print("A student is: ", student_name, "and password: ", password)
             print_one = False
         
@@ -104,6 +106,7 @@ def initDatabase():
         )
 
         if print_one:
+            password = "cece"
             print("An admin password: ", password)
             print_one = False
         admin = Admin(
@@ -115,8 +118,8 @@ def initDatabase():
     db.session.commit()
 
 
-app.register_blueprint(student_bp)
-app.register_blueprint(admin_bp)
+app.register_blueprint(student_bp, url_prefix="/student")
+app.register_blueprint(admin_bp,  url_prefix="/admin")
 
 with app.app_context():
     db.drop_all()
