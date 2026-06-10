@@ -14,13 +14,15 @@ from models.Room import Room
 from models.Admin import Admin
 
 # import routes
-from routes.student_routes import student_bp
+from routes.student_routes import student_bp, start_logging
 from routes.admin_routes import admin_bp
 
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
+start_logging()
 
 
 app = Flask(__name__)
@@ -110,4 +112,4 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
