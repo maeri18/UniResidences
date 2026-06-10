@@ -206,7 +206,8 @@ def get_all_applications():
                         (
                             app.submission_date,
                             app.application_Id,
-                            app.linksTo.description
+                            app.linksTo.description,
+                            app.linksTo.rent,
                         )
                         for app in student_applications
                     ]
