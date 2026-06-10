@@ -49,7 +49,7 @@ def login():
         return jsonify({"message": f"An error occured  {e}"}), 400
 
 
-@student_bp.route("/logout", methods=["GET"])
+@student_bp.route("/logout", methods=["POST"])
 def logout():
     session.clear()
     return jsonify({}), 200
@@ -206,7 +206,8 @@ def get_all_applications():
                         (
                             app.submission_date,
                             app.application_Id,
-                            app.linksTo.description
+                            app.linksTo.description,
+                            app.linksTo.rent,
                         )
                         for app in student_applications
                     ]
