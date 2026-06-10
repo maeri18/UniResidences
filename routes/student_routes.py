@@ -106,6 +106,7 @@ def check_free_room_description():
 @student_bp.route("/rooms/apply", methods=["POST"])
 def apply_for_a_room():
     try:
+        print("Received and application request")
 
         room_id = request.args.get("room_id", type=int)
         student_id = request.args.get("student_id", type=int)
@@ -120,6 +121,7 @@ def apply_for_a_room():
             and student_id is not None
             and application_message is not None
         ):
+            print(room_id, " ", student_id, " ", application_message)
             room = db.session.get(Room, room_id)
 
             if room is None:

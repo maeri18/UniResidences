@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
+from sqlalchemy import URL
 
 import random
 import string
@@ -9,7 +10,6 @@ from models import db
 
 # import all models
 from models.Student import Student
-from models.Application import Application
 from models.Room import Room
 from models.Admin import Admin
 
@@ -22,12 +22,15 @@ import os
 
 load_dotenv()
 
-
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "default-key")
+databaseUserName = os.environ.get("DATABASE_USERNAME")
+databasePassword = os.environ.get("DATABASE_PASSWORD")
+databaseURL = URL.create("postgresql", username=databaseUserName, password=databasePassword, host="localhost", port=5432, database="uniResidences")
+app.config["SQLALCHEMY_DATABASE_URI"] = databaseURL
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "defaultKey")
+
 
 db.init_app(app)
 
@@ -67,6 +70,8 @@ def initDatabase():
         )
         db.session.add(room)
 
+    print_one = True
+
     for i in range(5):
         student_name = "".join(
             random.choices(string.ascii_letters, k=random.randint(5, 10))
@@ -77,6 +82,11 @@ def initDatabase():
                 k=random.randint(6, 12),
             )
         )
+
+        if print_one:
+            print("A student is: ", student_name, "and password: ", password)
+            print_one = False
+        
         student = Student(
             student_name=student_name,
             password_hash=hashlib.shake_256(password.encode("utf-8")).hexdigest(50),
@@ -84,6 +94,7 @@ def initDatabase():
 
         db.session.add(student)
 
+    print_one = True
     for i in range(2):
         password = "".join(
             random.choices(
@@ -91,6 +102,10 @@ def initDatabase():
                 k=random.randint(12, 15),
             )
         )
+
+        if print_one:
+            print("An admin password: ", password)
+            print_one = False
         admin = Admin(
             password_hash=hashlib.shake_256(password.encode("utf-8")).hexdigest(50),
         )
