@@ -24,6 +24,8 @@ def login():
         student_id_str = data.get("student_id")
         try_student_password = data.get("student_password")
 
+        print("*******Tried to login with ",student_id_str," and ", try_student_password)
+
         if student_id_str is None or try_student_password is None:
             return jsonify({"message": "Invalid credentials"}), 403
 
@@ -55,11 +57,18 @@ def logout():
 
 @student_bp.before_request
 def restrict_to_student():
+
+    if request.method == "OPTIONS":
+        return None 
+    
     if request.endpoint == "student.login":
         return None
+    
+    print("Before request, the student role was: ", session.get("role"))
 
     if session.get("role") != "student":
         return jsonify({"message": "Access denied. Student privileges required."}), 403
+        
 
 
 @student_bp.route("/rooms/available", methods=["GET"])
@@ -190,21 +199,22 @@ def get_all_applications():
             else:
                 return jsonify({"message": "Unexisting student"}), 422
 
-            ids = [
-                application_id
-                for _, application_id in sorted(
+            details = [
+                application_details
+                for application_details in sorted(
                     [
                         (
                             app.submission_date,
                             app.application_Id,
+                            app.linksTo.description
                         )
                         for app in student_applications
                     ]
                 )
             ]
-            ids.reverse()
+            details.reverse()
 
-            return jsonify({"applications": ids}), 200
+            return jsonify({"applicationDetails": details, }), 200
         else:
             return (
                 jsonify(
