@@ -29,7 +29,8 @@ def create_uniResidences_app():
 
     databaseUserName = os.environ.get("DATABASE_USERNAME")
     databasePassword = os.environ.get("DATABASE_PASSWORD")
-    databaseURL = URL.create("postgresql", username=databaseUserName, password=databasePassword, host="localhost", port=5432, database="uniResidences")
+    databaseName = os.environ.get("DATABASE_NAME")
+    databaseURL = URL.create("postgresql", username=databaseUserName, password=databasePassword, host="localhost", port=5432, database=databaseName)
     app.config["SQLALCHEMY_DATABASE_URI"] = databaseURL
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "defaultKey")
 
@@ -40,6 +41,7 @@ def create_uniResidences_app():
 
     with app.app_context():
         db.create_all()
+
     return app
 
 

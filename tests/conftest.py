@@ -3,8 +3,6 @@ from flask import Flask
 from flask_cors import CORS
 from sqlalchemy import URL
 
-from app import create_uniResidences_app
-
 import random
 import string
 import hashlib
