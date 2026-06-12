@@ -1,0 +1,52 @@
+name: CI UniResidences Backend
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  SECRET_KEY: "testSecretKey"
+  DATABASE_USERNAME: "testUsername"
+  DATABASE_PASSWORD: "testPassword"
+  TEST_DATABASE_NAME: "testUniResidences"
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: ${{ env.DATABASE_PASSWORD }}
+          POSTGRES_USER: ${{ env.DATABASE_USERNAME }}
+          POSTGRES_DB: ${{ env.TEST_DATABASE_NAME }}
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest ./tests/test_student_features.py -v
+
+      - name: End
+        run: echo "*********** Everything was fine. ********************"
