@@ -14,6 +14,7 @@ admin_bp = Blueprint("admin", __name__)
 
 @admin_bp.route("/login", methods=["POST"])
 def login():
+    """Admin login route. Expects JSON with 'admin_id' and 'admin_password' fields. Validates credentials and starts a session if successful."""
     try:
         data = request.get_json()
         if data is None:
@@ -62,8 +63,6 @@ def restrict_to_admins():
     if request.endpoint == "admin.login":
         return None
     
-    print("Before request, the student role was: ", session.get("role"))
-
     if session.get("role") != "admin":
         return (
             jsonify({"message": "Access denied. Administrator privileges required."}),
@@ -142,6 +141,9 @@ def accept_student_application():
             admin = db.session.get(Admin, admin_id)
             if admin is None:
                 return jsonify({"message": "Can't perform the action"}), 403
+            
+            if admin_id != session.get("admin_id"):
+                return jsonify({"message":"You are not allowed to do this"}), 403
 
             if application_id is not None:
                 application = db.session.get(Application, application_id)
@@ -178,11 +180,14 @@ def reject_student_application():
             admin = db.session.get(Admin, admin_id)
             if admin is None:
                 return jsonify({"message": "Can't perform the action"}), 403
+            
+            if admin_id != session.get("admin_id"):
+                return jsonify({"message":"You are not allowed to do this"}), 403
 
             if request_data is not None:
                 reason_for_refusal = request_data.get("reason_for_refusal")
 
-            if reason_for_refusal is None:
+            if reason_for_refusal is None or len(reason_for_refusal.strip())==0:
                 return jsonify({"message": "Missing reason for refusal"}), 422
 
             if application_id is not None and reason_for_refusal is not None:
