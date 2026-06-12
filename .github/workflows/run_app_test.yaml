@@ -47,9 +47,8 @@ jobs:
 
       - name: Run tests
         run: |
-        pytest ./tests/test_student_features.py -v
-        pytest ./tests/test_admin_features.py -v
-
+          pytest ./tests/test_student_features.py -v
+          pytest ./tests/test_admin_features.py -v
 
       - name: End
         run: echo "*********** Everything was fine. ********************"
