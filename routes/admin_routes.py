@@ -72,6 +72,10 @@ def restrict_to_admins():
 
 @admin_bp.route("/rooms/all", methods=["GET"])
 def get_all_rooms():
+    """Returns a list of all room IDs in the system based on availability and budget. Accessible only to administrators.
+    if availability is provided, it should be a boolean value (True/False) to filter rooms based on their availability status.
+    if min_budget is provided, it should be an integer value to filter rooms with a rent greater than or equal to the specified minimum budget.
+    if max_budget is provided, it should be an integer value to filter rooms with a rent less than or equal to the specified maximum budget."""
     try:
         availability = parse_bool_arg(request.args.get("availability"))
         min_budget = request.args.get("min_budget", type=int)
@@ -100,6 +104,8 @@ def get_all_rooms():
 
 @admin_bp.route("/applications/details", methods=["GET"])
 def check_application_details():
+    """This route is to receive requests for getting the details (the student name, application id, submission date...) of a specific application. 
+    The request should contain the application id as a query parameter."""
     try:
         application_id = request.args.get("application_id", type=int)
         if application_id is not None:
@@ -118,10 +124,11 @@ def check_application_details():
 
 @admin_bp.route("/applications/pending", methods=["GET"])
 def check_pending_application():
+    """This route is to receive requests for getting the list of pending applications. It returns a list of application IDs ordered by submission date (the most recent first)."""
     try:
         pending_applications = (
             Application.query.filter(Application.status == ApplicationStatus.PENDING)
-            .order_by(Application.submission_date.desc())
+            .order_by(Application.submission_date.desc()) # descending order to have the most recent applications first
             .all()
         )
         pending_applications_id = [app.application_Id for app in pending_applications]
@@ -134,6 +141,10 @@ def check_pending_application():
 
 @admin_bp.route("/applications/accept", methods=["PUT"])
 def accept_student_application():
+    """This route is to receive requests for accepting a specific application.
+      The request should contain the application id and the admin id as query parameters. 
+      Only pending applications can be accepted.
+        Once an application is accepted, its status is updated, the linked room availability is set to false and the admin who handled the application is recorded."""
     try:
         application_id = request.args.get("application_id", type=int)
         admin_id = request.args.get("admin_id", type=int)
@@ -170,6 +181,10 @@ def accept_student_application():
 
 @admin_bp.route("/applications/reject", methods=["PUT"])
 def reject_student_application():
+    """This route is to receive requests for rejecting a specific application.
+      The request should contain the application id, the admin id and the reason for refusal in the request body. 
+      Only pending applications can be rejected.
+      Once an application is rejected, its status is updated, the reason for refusal and the admin who handled the application are recorded."""
     try:
         application_id = request.args.get("application_id", type=int)
         request_data = request.get_json()
