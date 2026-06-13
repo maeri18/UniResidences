@@ -2,7 +2,6 @@ services:
   uniresidences:
     image: maeri18/uniresidences_docker:latest
     container_name: uniResidences
-    user: "postgres"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=uniResidences
