@@ -32,14 +32,8 @@ def create_uniResidences_app():
 
     with app.app_context():
         db.create_all()
-        
 
     return app
-
-
-
-
-
 
 
 if __name__ == "__main__":

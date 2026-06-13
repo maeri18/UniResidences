@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict C8lYEsRmoh6902G7OtP0JoEk7Ag249rB9ktLN1Rkz2StMnek4LaJwMgzNbgL5B5
+\restrict SLm5q8p2DEQL2dFw89hgLNrFelevMArR9mhCUD7QHEhGfUbVOP4yXg1d6j1cg3V
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -124,26 +124,26 @@ COPY public.applications ("application_Id", status, reason_for_refusal, applicat
 --
 
 COPY public.rooms ("room_Id", available, rent, description) FROM stdin;
-509	t	464	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Kayl\nRent: 464
-2386	t	578	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Mersch\nRent: 578
-9774	t	439	Type 4: Studio apartment. Private bathroom and kitchen. Double (only for couples), average size, 35 m2. Located at : Esch-sur-Alzette\nRent: 439
-1635	t	380	Type 2: Single room. Private bathroom, shared kitchen, average surface: 19 m2. Located at : Kayl\nRent: 380
-9963	t	867	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Mersch\nRent: 867
-9028	t	553	Type 4: Studio apartment. Private bathroom and kitchen. Double (only for couples), average size, 35 m2. Located at : Kayl\nRent: 553
-9754	t	809	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Esch-sur-Alzette\nRent: 809
-7024	t	513	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Dudelange\nRent: 513
-3627	t	509	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Niederkorn\nRent: 509
-6324	t	444	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Differdange\nRent: 444
-9991	t	702	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Esch-sur-Alzette\nRent: 702
-8885	t	820	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Clervaux\nRent: 820
-9144	t	430	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Differdange\nRent: 430
-3250	t	941	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Esch-sur-Alzette\nRent: 941
-4841	t	583	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Kayl\nRent: 583
-6327	t	453	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Ettelbruck\nRent: 453
-2764	t	723	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Differdange\nRent: 723
-4474	t	564	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Luxembourg City\nRent: 564
-4110	t	896	Type 2: Single room. Private bathroom, shared kitchen, average surface: 19 m2. Located at : Ettelbruck\nRent: 896
-4522	t	738	Type 5: Two-room apartment. Private kitchen/living room, bathroom and one bedroom. (Only for couples): average size, 44 m2. Located at : Kayl\nRent: 738
+509	t	464	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Kayl. Rent: 464
+2386	t	578	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Mersch. Rent: 578
+9774	t	439	Type 4: Studio apartment. Private bathroom and kitchen. Double (only for couples), average size, 35 m2. Located at : Esch-sur-Alzette. Rent: 439
+1635	t	380	Type 2: Single room. Private bathroom, shared kitchen, average surface: 19 m2. Located at : Kayl. Rent: 380
+9963	t	867	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Mersch. Rent: 867
+9028	t	553	Type 4: Studio apartment. Private bathroom and kitchen. Double (only for couples), average size, 35 m2. Located at : Kayl. Rent: 553
+9754	t	809	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Esch-sur-Alzette. Rent: 809
+7024	t	513	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Dudelange. Rent: 513
+3627	t	509	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Niederkorn. Rent: 509
+6324	t	444	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Differdange. Rent: 444
+9991	t	702	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Esch-sur-Alzette. Rent: 702
+8885	t	820	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Clervaux. Rent: 820
+9144	t	430	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Differdange. Rent: 430
+3250	t	941	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Esch-sur-Alzette. Rent: 941
+4841	t	583	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Kayl. Rent: 583
+6327	t	453	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Ettelbruck. Rent: 453
+2764	t	723	Type 3: Studio apartment. Private bathroom and kitchen. Single, average size, 24 m2. Located at : Differdange. Rent: 723
+4474	t	564	Type 1: Single room. Shared bathroom and kitchen, average size: 15 m2. Located at : Luxembourg City. Rent: 564
+4110	t	896	Type 2: Single room. Private bathroom, shared kitchen, average surface: 19 m2. Located at : Ettelbruck. Rent: 896
+4522	t	738	Type 5: Two-room apartment. Private kitchen/living room, bathroom and one bedroom. (Only for couples): average size, 44 m2. Located at : Kayl. Rent: 738
 \.
 
 
@@ -235,5 +235,5 @@ ALTER TABLE ONLY public.applications
 -- PostgreSQL database dump complete
 --
 
-\unrestrict C8lYEsRmoh6902G7OtP0JoEk7Ag249rB9ktLN1Rkz2StMnek4LaJwMgzNbgL5B5
+\unrestrict SLm5q8p2DEQL2dFw89hgLNrFelevMArR9mhCUD7QHEhGfUbVOP4yXg1d6j1cg3V
 
