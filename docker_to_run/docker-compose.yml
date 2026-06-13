@@ -1,0 +1,14 @@
+services:
+  uniresidences:
+    image: maeri18/uniresidences:latest
+    container_name: uniResidences
+    user: "postgres"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=uniResidences
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5173:5173" # Frontend
+      - "5000:5000" # Flask Backend
+    tty: true
+    stdin_open: true
