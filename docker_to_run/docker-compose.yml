@@ -1,6 +1,6 @@
 services:
   uniresidences:
-    image: maeri18/uniresidences:latest
+    image: maeri18/uniresidences_docker:latest
     container_name: uniResidences
     user: "postgres"
     environment:
