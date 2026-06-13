@@ -44,4 +44,4 @@ def create_uniResidences_app():
 
 if __name__ == "__main__":
     uniResidences_app = create_uniResidences_app()
-    uniResidences_app.run()
+    uniResidences_app.run(host='0.0.0.0', port=5000)
