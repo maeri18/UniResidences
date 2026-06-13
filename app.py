@@ -2,16 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from sqlalchemy import URL
 
-import random
-import string
-import hashlib
-
 from models import db
-
-# import all models
-from models.Student import Student, generate_random_student_id
-from models.Room import Room, generate_random_room_id
-from models.Admin import Admin, generate_random_admin_id
 
 # import routes
 from routes.student_routes import student_bp
@@ -41,6 +32,7 @@ def create_uniResidences_app():
 
     with app.app_context():
         db.create_all()
+        
 
     return app
 
