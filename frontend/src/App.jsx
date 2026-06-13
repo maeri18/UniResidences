@@ -289,10 +289,10 @@ function MyApplications({ studentId }) {
     </div>
     
     <div style={{ fontSize: 14, color: C.textDim, marginTop: 4 }}>
-      <p style={{ margin: 0}}> <strong>/Application Id:</strong> {id}</p>
-      <p style={{ margin: 0}}> <strong>Room Id:</strong> {roomId}</p>
-      <p style={{ margin: 0 }}><strong>Room description:</strong> {room_description}</p>
-      <p style={{ margin: 0 }}><strong>Submission date:</strong> {submission_date}</p>
+      <p style={{ margin: 0}}> <strong>Application Id: </strong> {id}</p>
+      <p style={{ margin: 0}}> <strong>Room Id: </strong> {roomId}</p>
+      <p style={{ margin: 0 }}><strong>Room description: </strong> {room_description}</p>
+      <p style={{ margin: 0 }}><strong>Submission date: </strong> {submission_date}</p>
     </div>
   </div>
 ))}
